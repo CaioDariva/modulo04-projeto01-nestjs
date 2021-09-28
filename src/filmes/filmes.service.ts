@@ -1,25 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFilmeDto } from './dto/create-filme.dto';
-
-export type Filme = {
-  nome: string;
-  imagem?: string;
-};
-
-const filmes: Filme[] = [
-  {
-    nome: 'Matrix',
-    imagem:
-      'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/91/08/82/20128877.JPG',
-  },
-];
-
+import { Filme, Prisma } from '.prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class FilmesService {
-  getAll() {
-    return filmes;
+  constructor(private prisma: PrismaService) {}
+
+  async listAllFilmes(): Promise<Filme[]> {
+    return this.prisma.filme.findMany();
   }
-  createFilme(filme: CreateFilmeDto) {
-    return filmes.push(filme);
+
+  async createFilme(data: Prisma.FilmeCreateInput): Promise<Filme> {
+    return this.prisma.filme.create({ data });
+  }
+
+  async deleteOneFilme(where: Prisma.FilmeWhereUniqueInput): Promise<Filme> {
+    return this.prisma.filme.delete({ where });
+  }
+
+  async deleteAllFilmes() {
+    return this.prisma.filme.deleteMany();
+  }
+
+  async updateOneFilme(
+    filmeId: number,
+    data: Prisma.FilmeCreateInput,
+  ): Promise<Filme> {
+    return this.prisma.filme.update({
+      data,
+      where: {
+        id: filmeId,
+      },
+    });
+  }
+
+  async getOneFilme(filmeId: number): Promise<Filme> {
+    return this.prisma.filme.findUnique({
+      where: {
+        id: filmeId,
+      },
+    });
   }
 }
